@@ -10,7 +10,7 @@ from utility.inventory_util import create_inventory_value_chart, create_inventor
 warnings.filterwarnings('ignore')
 
 sku = pd.DataFrame(api.get_skus())
-inventory = pd.DataFrame(api.get_inventary())
+inventory = pd.DataFrame(api.get_inventory())
 
 sku = sku[
     [

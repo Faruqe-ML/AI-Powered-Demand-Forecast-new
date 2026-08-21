@@ -36,6 +36,32 @@ def validate_datasets():
 
 validate_datasets()
 
+def _normalize_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """Strip BOM/whitespace and lowercase column names."""
+    df = df.copy()
+    df.columns = (
+        df.columns
+        .astype(str)
+        .str.replace("\ufeff", "", regex=False)
+        .str.strip()
+        .str.lower()
+    )
+    return df
+
+
+def _ensure_date_column(df: pd.DataFrame) -> pd.DataFrame:
+    """Map common alternate date column names to 'date'."""
+    if df.empty or "date" in df.columns:
+        return df
+
+    for alt in ("sale_date", "transaction_date", "order_date", "datetime", "timestamp"):
+        if alt in df.columns:
+            df = df.rename(columns={alt: "date"})
+            break
+
+    return df
+
+
 @st.cache_data(ttl=3600)
 def get_daily_sales():
 
@@ -45,13 +71,14 @@ def get_daily_sales():
         st.error(f"Dataset file not found: {file_path}")
         return pd.DataFrame()
 
-    df = pd.read_csv(file_path)
+    try:
+        df = pd.read_csv(file_path)
+    except Exception as exc:
+        st.error(f"Failed to read dataset file: {file_path}\n{exc}")
+        return pd.DataFrame()
 
-    df.columns = (
-        df.columns
-        .str.strip()
-        .str.lower()
-    )
+    df = _normalize_columns(df)
+    df = _ensure_date_column(df)
 
     return df
 
@@ -62,14 +89,7 @@ def get_stores():
         DATASET_DIR / "store.csv"
     )
 
-    # Clean column names
-    df.columns = (
-        df.columns
-        .str.strip()
-        .str.lower()
-    )
-
-    return df
+    return _normalize_columns(df)
 
 
 @st.cache_data(ttl=3600)
@@ -79,13 +99,7 @@ def get_inventory():
         DATASET_DIR / "inventory.csv"
     )
 
-    df.columns = (
-        df.columns
-        .str.strip()
-        .str.lower()
-    )
-
-    return df
+    return _normalize_columns(df)
 
 
 @st.cache_data(ttl=3600)
@@ -95,13 +109,7 @@ def get_customer():
         DATASET_DIR / "customer.csv"
     )
 
-    df.columns = (
-        df.columns
-        .str.strip()
-        .str.lower()
-    )
-
-    return df
+    return _normalize_columns(df)
 
 
 def get_customer_summary() -> dict:
@@ -276,13 +284,7 @@ def get_promotion():
         DATASET_DIR / "promotions.csv"
     )
 
-    df.columns = (
-        df.columns
-        .str.strip()
-        .str.lower()
-    )
-
-    return df
+    return _normalize_columns(df)
 
 
 @st.cache_data(ttl=3600)
@@ -361,13 +363,7 @@ def get_skus():
         DATASET_DIR / "skus.csv"
     )
 
-    df.columns = (
-        df.columns
-        .str.strip()
-        .str.lower()
-    )
-
-    return df
+    return _normalize_columns(df)
 
 
 @st.cache_data(ttl=3600)

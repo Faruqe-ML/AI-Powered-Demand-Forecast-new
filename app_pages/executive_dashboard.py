@@ -19,10 +19,46 @@ def load_data():
     product_summary = api.get_product_summary()
     sales_summary = api.get_sales_summary()
 
-    sku = pd.DataFrame(api.get_skus())
-    daily_sales = pd.DataFrame(api.get_daily_sales())
+    sku = api.get_skus()
+    if not isinstance(sku, pd.DataFrame):
+        sku = pd.DataFrame(sku)
+
+    daily_sales = api.get_daily_sales()
+    if not isinstance(daily_sales, pd.DataFrame):
+        daily_sales = pd.DataFrame(daily_sales)
+
+    if daily_sales.empty:
+        return {
+            "sku": sku,
+            "daily_sales": daily_sales,
+            "daily_sales_with_cat": daily_sales,
+            "daily": pd.DataFrame(),
+            "daily_category": pd.DataFrame(),
+            "product_summary": product_summary,
+            "sales_summary": sales_summary,
+            "error": (
+                f"No rows loaded from daily_sale.csv. "
+                f"Expected file at: {api.DATASET_DIR / 'daily_sale.csv'}"
+            ),
+        }
+
+    if "date" not in daily_sales.columns:
+        return {
+            "sku": sku,
+            "daily_sales": daily_sales,
+            "daily_sales_with_cat": daily_sales,
+            "daily": pd.DataFrame(),
+            "daily_category": pd.DataFrame(),
+            "product_summary": product_summary,
+            "sales_summary": sales_summary,
+            "error": (
+                f"Column 'date' not found in daily_sale.csv. "
+                f"Available columns: {list(daily_sales.columns)}"
+            ),
+        }
 
     # Convert date
+    daily_sales = daily_sales.copy()
     daily_sales["date"] = pd.to_datetime(
         daily_sales["date"],
         errors="coerce"
@@ -35,42 +71,48 @@ def load_data():
             daily_sales["category"].fillna("Unknown")
         )
 
+    agg_cols = {
+        col: agg
+        for col, agg in {
+            "units_sold": "sum",
+            "revenue": "sum",
+            "unit_price": "mean",
+        }.items()
+        if col in daily_sales.columns
+    }
+
+    if not agg_cols:
+        return {
+            "sku": sku,
+            "daily_sales": daily_sales,
+            "daily_sales_with_cat": daily_sales,
+            "daily": pd.DataFrame(),
+            "daily_category": pd.DataFrame(),
+            "product_summary": product_summary,
+            "sales_summary": sales_summary,
+            "error": (
+                "Missing required columns (units_sold / revenue / unit_price). "
+                f"Available columns: {list(daily_sales.columns)}"
+            ),
+        }
+
     daily = (
         daily_sales
         .groupby("date")
-        .agg({
-            "units_sold": "sum",
-            "revenue": "sum",
-            "unit_price": "mean"
-        })
+        .agg(agg_cols)
         .reset_index()
     )
 
-    daily.columns = [
-        "date",
-        "units_sold",
-        "revenue",
-        "avg_price"
-    ]
+    rename_map = {"unit_price": "avg_price"}
+    daily = daily.rename(columns=rename_map)
 
     daily_category = (
         daily_sales
         .groupby(["date", "category"])
-        .agg({
-            "units_sold": "sum",
-            "revenue": "sum",
-            "unit_price": "mean"
-        })
+        .agg(agg_cols)
         .reset_index()
+        .rename(columns=rename_map)
     )
-
-    daily_category.columns = [
-        "date",
-        "category",
-        "units_sold",
-        "revenue",
-        "avg_price"
-    ]
 
     return {
         "sku": sku,
@@ -79,7 +121,8 @@ def load_data():
         "daily": daily,
         "daily_category": daily_category,
         "product_summary": product_summary,
-        "sales_summary": sales_summary
+        "sales_summary": sales_summary,
+        "error": None,
     }
 
 def show_executive_dashboard():
@@ -106,6 +149,18 @@ def show_executive_dashboard():
     # ============================================
 
     data = load_data()
+
+    if data.get("error"):
+        st.error(f"❌ {data['error']}")
+        st.info(
+            "On the server, verify the dataset exists and is complete:\n\n"
+            "`/home/gosofttech/dev/AI-Powered-Demand-Forecast-new/dataset/daily_sale.csv`\n\n"
+            "This file is ~193MB. If upload was incomplete, re-copy it and restart Streamlit."
+        )
+        if st.button("🔄 Retry Loading"):
+            st.cache_data.clear()
+            st.rerun()
+        return
 
     if data['daily'] is None or len(data['daily']) == 0:
         st.error("❌ No data available. Please check your data source.")

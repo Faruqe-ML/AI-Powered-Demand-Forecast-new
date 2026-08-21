@@ -11,7 +11,7 @@ warnings.filterwarnings('ignore')
 
 sku = pd.DataFrame(api.get_skus())
 daily_sales = api.get_daily_sales()
-inventory = pd.DataFrame(api.get_inventary())
+inventory = pd.DataFrame(api.get_inventory())
 daily_sales["date"] = pd.to_datetime(daily_sales["date"], errors="coerce")
 
 daily_sales_with_cat = daily_sales.copy()
