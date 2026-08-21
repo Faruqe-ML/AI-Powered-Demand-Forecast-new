@@ -3,6 +3,9 @@ import pandas as pd
 
 import warnings
 
+from utility.customer_segmentation_util import create_segment_chart, create_cluster_chart, create_rfm_scatter, \
+    create_cluster_radar, perform_kmeans, segment_customers, calculate_rfm_scores, calculate_rfm, load_customer_data
+
 warnings.filterwarnings('ignore')
 
 daily_sales = load_customer_data()
