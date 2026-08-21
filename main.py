@@ -120,3 +120,7 @@ elif page_key == "segmentation":
 elif page_key == "churn":
     from app_pages.customer_churn_dashboard import show_churn_prediction
     show_churn_prediction()
+
+elif page_key == "inventory_opt":
+    from app_pages.inventary_optimization import show_inventory_optimization
+    show_inventory_optimization()
