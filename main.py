@@ -99,3 +99,7 @@ elif page_key == "seasonality":
 elif page_key == "forecast":
     from app_pages.forecast_dashboard import show_forecast_dashboard
     show_forecast_dashboard()
+
+elif page_key == "customers":
+    from app_pages.customer_insight_dashboard import show_customer_insights
+    show_customer_insights()
