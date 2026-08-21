@@ -550,6 +550,18 @@ def create_cluster_radar(rfm):
 
     fig.update_layout(
 
+        title=dict(
+            text="Customer Segment Characteristics",
+            x=0.5,
+            xanchor="center",
+            y=0.97,
+            yanchor="top",
+            font=dict(
+                color="white",
+                size=18
+            )
+        ),
+
         polar=dict(
 
             bgcolor="#0a0a0a",
@@ -584,5 +596,6 @@ def create_cluster_radar(rfm):
             )
         )
     )
+    
 
     return fig
