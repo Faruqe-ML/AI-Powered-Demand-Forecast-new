@@ -91,3 +91,7 @@ elif page_key == "overstock":
 elif page_key == "promotion":
     from app_pages.promo_dashboard import show_promotion_dashboard
     show_promotion_dashboard()
+
+elif page_key == "seasonality":
+    from app_pages.seasonal_dashboard import show_seasonality_dashboard
+    show_seasonality_dashboard()
