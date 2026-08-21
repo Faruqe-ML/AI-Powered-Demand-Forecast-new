@@ -95,3 +95,7 @@ elif page_key == "promotion":
 elif page_key == "seasonality":
     from app_pages.seasonal_dashboard import show_seasonality_dashboard
     show_seasonality_dashboard()
+
+elif page_key == "forecast":
+    from app_pages.forecast_dashboard import show_forecast_dashboard
+    show_forecast_dashboard()
