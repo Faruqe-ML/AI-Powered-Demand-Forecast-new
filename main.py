@@ -115,3 +115,7 @@ elif page_key == "ml_performance":
 elif page_key == "forecasting":
     from app_pages.demand_forecasting_dashboard import show_demand_forecasting
     show_demand_forecasting()
+
+elif page_key == "segmentation":
+    from app_pages.customer_segmentation_dashboard import show_customer_segmentation
+    show_customer_segmentation()
