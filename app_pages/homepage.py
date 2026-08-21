@@ -3,6 +3,7 @@ import streamlit as st
 from datetime import datetime
 import api
 
+
 def show_home():
 
     def safe_dict(value):

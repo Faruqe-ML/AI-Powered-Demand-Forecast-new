@@ -11,28 +11,41 @@ BASE_DIR = Path(__file__).resolve().parent
 DATASET_DIR = BASE_DIR / "dataset"
 
 
-# ============================================================
-# CSV DATA
-# ============================================================
+REQUIRED_FILES = [
+    "daily_sale.csv",
+    "store.csv",
+    "inventory.csv",
+    "customer.csv",
+    "promotions.csv",
+    "skus.csv",
+]
 
-# @st.cache_data(ttl=3600)
-# def get_sales():
-#
-#     return pd.read_csv(
-#         DATASET_DIR / "sale.csv"
-#     )
 
+def validate_datasets():
+
+    missing_files = [
+        filename
+        for filename in REQUIRED_FILES
+        if not (DATASET_DIR / filename).exists()
+    ]
+
+    if missing_files:
+        raise FileNotFoundError(
+            f"Missing dataset files: {', '.join(missing_files)}"
+        )
+
+validate_datasets()
 
 @st.cache_data(ttl=3600)
 def get_daily_sales():
 
-    df = pd.read_csv(
-        DATASET_DIR / "daily_sale.csv"
-    )
+    file_path = DATASET_DIR / "daily_sale.csv"
 
-    print("DAILY SALES FILE:", DATASET_DIR / "daily_sale.csv")
-    print("DAILY SALES SHAPE:", df.shape)
-    print("DAILY SALES COLUMNS:", df.columns.tolist())
+    if not file_path.exists():
+        st.error(f"Dataset file not found: {file_path}")
+        return pd.DataFrame()
+
+    df = pd.read_csv(file_path)
 
     df.columns = (
         df.columns
@@ -60,7 +73,7 @@ def get_stores():
 
 
 @st.cache_data(ttl=3600)
-def get_inventary():
+def get_inventory():
 
     df = pd.read_csv(
         DATASET_DIR / "inventory.csv"
