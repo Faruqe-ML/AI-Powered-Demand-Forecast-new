@@ -3,14 +3,9 @@ import warnings
 
 import streamlit as st
 
-from app_pages.category_performance import show_category_performance
-from app_pages.executive_dashboard import show_executive_dashboard
-from app_pages.homepage import show_home
-from app_pages.inventory_dashboard import show_inventory_dashboard
-from app_pages.overstock_dashboard import show_overstock_dashboard
-from app_pages.product_performance_dashboard import show_product_performance
-from app_pages.sales_analysis_dashboard import show_sales_analytics
-from app_pages.stockout_risk_dashboard import show_stockout_risk
+
+
+
 
 st.set_page_config(
     page_title="RetailPulse AI Platform",
@@ -63,24 +58,32 @@ st.sidebar.markdown(f"""
 """, unsafe_allow_html=True)
 
 if page_key == "home":
+    from app_pages.homepage import show_home
     show_home()
 elif page_key == "executive":
+    from app_pages.executive_dashboard import show_executive_dashboard
     show_executive_dashboard()
 
 elif page_key == "sales":
+    from app_pages.sales_analysis_dashboard import show_sales_analytics
     show_sales_analytics()
 
 elif page_key == "products":
+    from app_pages.product_performance_dashboard import show_product_performance
     show_product_performance()
 
 elif page_key == "categories":
+    from app_pages.category_performance import show_category_performance
     show_category_performance()
 
 elif page_key == "inventory":
+    from app_pages.inventory_dashboard import show_inventory_dashboard
     show_inventory_dashboard()
 
 elif page_key == "stockout":
+    from app_pages.stockout_risk_dashboard import show_stockout_risk
     show_stockout_risk()
 
 elif page_key == "overstock":
+    from app_pages.overstock_dashboard import show_overstock_dashboard
     show_overstock_dashboard()
