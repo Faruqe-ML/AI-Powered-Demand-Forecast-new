@@ -18,7 +18,7 @@ def load_bi_data():
     try:
         daily_sales = pd.DataFrame(api.get_daily_sales())
         sku = pd.DataFrame(api.get_skus())
-        inventory = pd.DataFrame(api.get_inventary())
+        inventory = pd.DataFrame(api.get_inventory())
 
         # Convert dates
         daily_sales['date'] = pd.to_datetime(daily_sales['date'], errors='coerce')
