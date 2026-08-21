@@ -103,3 +103,7 @@ elif page_key == "forecast":
 elif page_key == "customers":
     from app_pages.customer_insight_dashboard import show_customer_insights
     show_customer_insights()
+
+elif page_key == "recommendations":
+    from app_pages.recommendation_dashboard import show_recommendations
+    show_recommendations()
