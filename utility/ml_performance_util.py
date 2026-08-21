@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import pickle
 
-from app_pages.ml_performance_dashboard import daily_sales
+
 
 
 @st.cache_resource
@@ -89,7 +89,7 @@ def calculate_model_metrics(actual, predicted):
 # GET METRICS FROM MODELS
 # ============================================
 
-def get_model_metrics_from_data():
+def get_model_metrics_from_data(daily_sales):
     """Calculate metrics for all models using actual data"""
 
     metrics_data = []

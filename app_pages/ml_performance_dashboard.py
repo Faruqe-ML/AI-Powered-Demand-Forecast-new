@@ -42,7 +42,7 @@ def show_ml_performance():
     prophet_model = load_prophet_model()
     rf_model = load_random_forest_model()
     linear_model = load_linear_model()
-    metrics = get_model_metrics_from_data()
+    metrics = get_model_metrics_from_data(daily_sales)
 
     # ============================================
     # MODEL STATUS
