@@ -124,3 +124,7 @@ elif page_key == "churn":
 elif page_key == "inventory_opt":
     from app_pages.inventary_optimization import show_inventory_optimization
     show_inventory_optimization()
+
+elif page_key == "bi":
+    from app_pages.business_intellegence_dashboard import show_bi_dashboard
+    show_bi_dashboard()
