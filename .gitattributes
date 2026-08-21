@@ -1,0 +1,2 @@
+dataset/daily_sale.csv filter=lfs diff=lfs merge=lfs -text
+models/prophet_model.pkl filter=lfs diff=lfs merge=lfs -text
