@@ -802,12 +802,12 @@ def create_monthly_trend(df):
                     title=dict(
                         text='Revenue',
                         font=dict(
-                            color='#111827'
+                            color='white'
                         )
                     ),
 
                     tickfont=dict(
-                        color='#111827'
+                        color='white'
                     )
                 )
             ),
@@ -819,7 +819,7 @@ def create_monthly_trend(df):
             textposition='outside',
 
             textfont=dict(
-                color='#111827',
+                color='white',
                 size=10
             ),
 
@@ -837,82 +837,105 @@ def create_monthly_trend(df):
 
     fig.update_layout(
 
-        # ------------------------------
+        # ==============================
         # CENTERED TITLE
-        # ------------------------------
+        # ==============================
+
         title=dict(
             text='Monthly Revenue Trend',
+
             x=0.5,
+
             xanchor='center',
+
             y=0.95,
+
             yanchor='top',
 
             font=dict(
                 size=20,
-                color='#111827'
+                color='white'
             )
         ),
 
-        # ------------------------------
+        # ==============================
         # X AXIS
-        # ------------------------------
+        # ==============================
+
         xaxis=dict(
             title=dict(
                 text='Month',
+
                 font=dict(
-                    color='#111827'
+                    color='white'
                 )
             ),
 
             tickfont=dict(
-                color='#111827'
+                color='white'
             ),
 
             showgrid=False,
-            zeroline=False
+
+            zeroline=False,
+
+            linecolor='rgba(255,255,255,0.3)',
+
+            tickcolor='white'
         ),
 
-        # ------------------------------
+        # ==============================
         # Y AXIS
-        # ------------------------------
+        # ==============================
+
         yaxis=dict(
             title=dict(
                 text='Revenue (₹)',
+
                 font=dict(
-                    color='#111827'
+                    color='white'
                 )
             ),
 
             tickfont=dict(
-                color='#111827'
+                color='white'
             ),
 
             showgrid=True,
-            gridcolor='#e5e7eb',
-            zeroline=False
+
+            gridcolor='rgba(255,255,255,0.12)',
+
+            zeroline=False,
+
+            linecolor='rgba(255,255,255,0.3)',
+
+            tickcolor='white'
         ),
 
-        # ------------------------------
-        # WHITE THEME
-        # ------------------------------
-        template='plotly_white',
+        # ==============================
+        # BLACK THEME
+        # ==============================
 
-        paper_bgcolor='white',
+        template='plotly_dark',
 
-        plot_bgcolor='white',
+        paper_bgcolor='#0e1117',
+
+        plot_bgcolor='#0e1117',
 
         font=dict(
-            color='#111827'
+            color='white'
         ),
 
-        # ------------------------------
+        # ==============================
         # SIZE
-        # ------------------------------
+        # ==============================
+
         height=350,
 
-        # ------------------------------
+        # ==============================
         # MARGINS
-        # ------------------------------
+        # ==============================
+
         margin=dict(
             l=70,
             r=70,
@@ -920,15 +943,18 @@ def create_monthly_trend(df):
             b=60
         ),
 
-        # ------------------------------
+        # ==============================
         # HOVER
-        # ------------------------------
+        # ==============================
+
         hoverlabel=dict(
-            bgcolor='white',
+            bgcolor='#1f2937',
 
             font=dict(
-                color='#111827'
-            )
+                color='white'
+            ),
+
+            bordercolor='rgba(255,255,255,0.2)'
         )
     )
 
@@ -983,7 +1009,6 @@ def create_channel_distribution(df):
         '#10B981'
     ]
 
-    # Repeat colors if there are more channels
     chart_colors = [
         colors[i % len(colors)]
         for i in range(len(channel_data))
@@ -1003,7 +1028,12 @@ def create_channel_distribution(df):
                 hole=0.4,
 
                 marker=dict(
-                    colors=chart_colors
+                    colors=chart_colors,
+
+                    line=dict(
+                        color='#0e1117',
+                        width=2
+                    )
                 ),
 
                 textinfo='label+percent',
@@ -1011,7 +1041,7 @@ def create_channel_distribution(df):
                 textposition='auto',
 
                 textfont=dict(
-                    color='#111827',
+                    color='white',
                     size=12
                 ),
 
@@ -1031,9 +1061,10 @@ def create_channel_distribution(df):
 
     fig.update_layout(
 
-        # ------------------------------
+        # ==============================
         # CENTERED TITLE
-        # ------------------------------
+        # ==============================
+
         title=dict(
             text='Revenue by Channel',
 
@@ -1047,31 +1078,34 @@ def create_channel_distribution(df):
 
             font=dict(
                 size=20,
-                color='#111827'
+                color='white'
             )
         ),
 
-        # ------------------------------
-        # WHITE THEME
-        # ------------------------------
-        template='plotly_white',
+        # ==============================
+        # BLACK THEME
+        # ==============================
 
-        paper_bgcolor='white',
+        template='plotly_dark',
 
-        plot_bgcolor='white',
+        paper_bgcolor='#0e1117',
+
+        plot_bgcolor='#0e1117',
 
         font=dict(
-            color='#111827'
+            color='white'
         ),
 
-        # ------------------------------
+        # ==============================
         # SIZE
-        # ------------------------------
+        # ==============================
+
         height=350,
 
-        # ------------------------------
+        # ==============================
         # LEGEND
-        # ------------------------------
+        # ==============================
+
         legend=dict(
             orientation='h',
 
@@ -1084,13 +1118,14 @@ def create_channel_distribution(df):
             x=0.5,
 
             font=dict(
-                color='#111827'
+                color='white'
             )
         ),
 
-        # ------------------------------
+        # ==============================
         # MARGINS
-        # ------------------------------
+        # ==============================
+
         margin=dict(
             l=30,
             r=30,
@@ -1098,20 +1133,22 @@ def create_channel_distribution(df):
             b=70
         ),
 
-        # ------------------------------
+        # ==============================
         # HOVER
-        # ------------------------------
+        # ==============================
+
         hoverlabel=dict(
-            bgcolor='white',
+            bgcolor='#1f2937',
 
             font=dict(
-                color='#111827'
-            )
+                color='white'
+            ),
+
+            bordercolor='rgba(255,255,255,0.2)'
         )
     )
 
     return fig
-
 
 def create_kpi_card(label, value, delta=None, delta_color='normal', icon='📊'):
     """Create a KPI card with consistent styling"""
