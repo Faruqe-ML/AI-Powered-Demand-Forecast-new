@@ -3,7 +3,6 @@ import plotly.express as px
 import plotly.graph_objects as go
 def calculate_metrics(daily, daily_sales_with_cat):
     """Calculate all dashboard metrics"""
-
     total_revenue = daily['revenue'].sum()
     total_units = daily['units_sold'].sum()
     total_skus = daily_sales_with_cat['sku_id'].nunique()

@@ -87,3 +87,7 @@ elif page_key == "stockout":
 elif page_key == "overstock":
     from app_pages.overstock_dashboard import show_overstock_dashboard
     show_overstock_dashboard()
+
+elif page_key == "promotion":
+    from app_pages.promo_dashboard import show_promotion_dashboard
+    show_promotion_dashboard()
