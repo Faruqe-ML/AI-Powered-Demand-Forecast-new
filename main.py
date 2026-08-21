@@ -4,9 +4,6 @@ import warnings
 import streamlit as st
 
 
-
-
-
 st.set_page_config(
     page_title="RetailPulse AI Platform",
     page_icon="📊",
@@ -119,3 +116,7 @@ elif page_key == "forecasting":
 elif page_key == "segmentation":
     from app_pages.customer_segmentation_dashboard import show_customer_segmentation
     show_customer_segmentation()
+
+elif page_key == "churn":
+    from app_pages.customer_churn_dashboard import show_churn_prediction
+    show_churn_prediction()

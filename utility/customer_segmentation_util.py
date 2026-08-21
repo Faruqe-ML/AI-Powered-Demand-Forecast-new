@@ -596,6 +596,6 @@ def create_cluster_radar(rfm):
             )
         )
     )
-    
+
 
     return fig
