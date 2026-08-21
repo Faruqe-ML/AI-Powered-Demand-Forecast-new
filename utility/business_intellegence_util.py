@@ -34,32 +34,48 @@ def calculate_bi_metrics(df):
 
 def create_revenue_trend(df, period='Daily'):
     """Revenue trend chart"""
+
     if df.empty:
         return go.Figure()
 
-    # Make sure date is datetime
     df = df.copy()
-    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+    # Make sure date is datetime
+    df['date'] = pd.to_datetime(
+        df['date'],
+        errors='coerce'
+    )
+
     df = df.dropna(subset=['date'])
 
     # Aggregate by period
     if period == 'Daily':
-        trend = df.groupby('date', as_index=False)['revenue'].sum()
+
+        trend = (
+            df.groupby(
+                'date',
+                as_index=False
+            )['revenue']
+            .sum()
+        )
+
         x_col = 'date'
 
     elif period == 'Weekly':
-        # Use ISO year + ISO week together
+
         iso = df['date'].dt.isocalendar()
 
         df['iso_year'] = iso.year
         df['week'] = iso.week
 
         trend = (
-            df.groupby(['iso_year', 'week'], as_index=False)['revenue']
+            df.groupby(
+                ['iso_year', 'week'],
+                as_index=False
+            )['revenue']
             .sum()
         )
 
-        # Convert ISO year/week to the Monday of that week
         trend['date'] = pd.to_datetime(
             trend['iso_year'].astype(str)
             + '-W'
@@ -70,12 +86,16 @@ def create_revenue_trend(df, period='Daily'):
 
         x_col = 'date'
 
-    else:  # Monthly
+    else:
+
         df['month'] = df['date'].dt.month
         df['year'] = df['date'].dt.year
 
         trend = (
-            df.groupby(['year', 'month'], as_index=False)['revenue']
+            df.groupby(
+                ['year', 'month'],
+                as_index=False
+            )['revenue']
             .sum()
         )
 
@@ -94,32 +114,116 @@ def create_revenue_trend(df, period='Daily'):
     # Create chart
     fig = go.Figure()
 
-    fig.add_trace(go.Scatter(
-        x=trend[x_col],
-        y=trend['revenue'],
-        mode='lines+markers',
-        name='Revenue',
-        line=dict(color='#6366F1', width=3),
-        marker=dict(size=6, color='#6366F1'),
-        fill='tozeroy',
-        fillcolor='rgba(99,102,241,0.15)',
-        hovertemplate=(
-            '<b>%{x|%d %b %Y}</b><br>'
-            'Revenue: ₹%{y:,.0f}'
-            '<extra></extra>'
+    fig.add_trace(
+        go.Scatter(
+            x=trend[x_col],
+            y=trend['revenue'],
+            mode='lines+markers',
+            name='Revenue',
+
+            line=dict(
+                color='#6366F1',
+                width=3
+            ),
+
+            marker=dict(
+                size=6,
+                color='#6366F1'
+            ),
+
+            fill='tozeroy',
+
+            fillcolor='rgba(99,102,241,0.15)',
+
+            hovertemplate=(
+                '<b>%{x|%d %b %Y}</b><br>'
+                'Revenue: ₹%{y:,.0f}'
+                '<extra></extra>'
+            ),
+
+            hoverlabel=dict(
+                bgcolor='#ffffff',
+                font=dict(
+                    color='#000000',
+                    size=13
+                )
+            )
         )
-    ))
+    )
 
     fig.update_layout(
-        title='Revenue Trend',
-        xaxis_title='Date',
-        yaxis_title='Revenue (₹)',
+
+        # ==============================
+        # CENTERED TITLE
+        # ==============================
+        title=dict(
+            text='Revenue Trend',
+            x=0.5,
+            xanchor='center',
+            y=0.95,
+            yanchor='top',
+            font=dict(
+                color='white',
+                size=18
+            )
+        ),
+
+        # ==============================
+        # AXES
+        # ==============================
+        xaxis=dict(
+            title=dict(
+                text='Date',
+                font=dict(
+                    color='white',
+                    size=13
+                )
+            ),
+            tickfont=dict(
+                color='white',
+                size=11
+            ),
+            color='white',
+            gridcolor='rgba(255,255,255,0.10)'
+        ),
+
+        yaxis=dict(
+            title=dict(
+                text='Revenue (₹)',
+                font=dict(
+                    color='white',
+                    size=13
+                )
+            ),
+            tickfont=dict(
+                color='white',
+                size=11
+            ),
+            color='white',
+            gridcolor='rgba(255,255,255,0.10)'
+        ),
+
+        # ==============================
+        # DARK BACKGROUND
+        # ==============================
         template='plotly_dark',
+
         paper_bgcolor='#0e1117',
         plot_bgcolor='#0e1117',
-        font=dict(color='white'),
+
+        font=dict(
+            color='white'
+        ),
+
         height=350,
-        hovermode='x unified'
+
+        hovermode='x unified',
+
+        legend=dict(
+            font=dict(
+                color='white'
+            )
+        )
     )
 
     return fig
@@ -128,202 +232,881 @@ def create_revenue_trend(df, period='Daily'):
 
 def create_sales_by_category(df):
     """Sales by category chart"""
+
     if df.empty or 'category' not in df.columns:
         return go.Figure()
 
-    category_sales = df.groupby('category')['revenue'].sum().sort_values(ascending=True).reset_index()
-    category_sales = category_sales.tail(10)  # Top 10
+    category_sales = (
+        df.groupby('category')['revenue']
+        .sum()
+        .sort_values(ascending=True)
+        .reset_index()
+    )
+
+    category_sales = category_sales.tail(10)
 
     fig = go.Figure()
 
-    fig.add_trace(go.Bar(
-        x=category_sales['revenue'],
-        y=category_sales['category'],
-        orientation='h',
-        marker=dict(
-            color=category_sales['revenue'],
-            colorscale='Viridis',
-            showscale=True,
-            colorbar=dict(title='Revenue')
-        ),
-        text=category_sales['revenue'].apply(lambda x: f'₹{x:,.0f}'),
-        textposition='outside',
-        textfont=dict(color='white', size=10),
-        hovertemplate='<b>%{y}</b><br>Revenue: ₹%{x:,.0f}<extra></extra>'
-    ))
+    fig.add_trace(
+        go.Bar(
+            x=category_sales['revenue'],
+            y=category_sales['category'],
+            orientation='h',
+
+            marker=dict(
+                color=category_sales['revenue'],
+                colorscale='Viridis',
+                showscale=True,
+
+                colorbar=dict(
+                    title=dict(
+                        text='Revenue',
+                        font=dict(
+                            color='white'
+                        )
+                    ),
+                    tickfont=dict(
+                        color='white'
+                    )
+                )
+            ),
+
+            text=category_sales['revenue'].apply(
+                lambda x: f'₹{x:,.0f}'
+            ),
+
+            textposition='outside',
+
+            textfont=dict(
+                color='white',
+                size=10
+            ),
+
+            hovertemplate=(
+                '<b>%{y}</b><br>'
+                'Revenue: ₹%{x:,.0f}'
+                '<extra></extra>'
+            ),
+
+            hoverlabel=dict(
+                bgcolor='white',
+                font=dict(
+                    color='black',
+                    size=13
+                )
+            )
+        )
+    )
 
     fig.update_layout(
-        title='Top 10 Categories by Revenue',
-        xaxis_title='Revenue (₹)',
-        yaxis_title='Category',
+
+        # ==============================
+        # CENTERED TITLE
+        # ==============================
+        title=dict(
+            text='Top 10 Categories by Revenue',
+            x=0.5,
+            xanchor='center',
+            y=0.95,
+            yanchor='top',
+            font=dict(
+                color='white',
+                size=18
+            )
+        ),
+
+        # ==============================
+        # X AXIS
+        # ==============================
+        xaxis=dict(
+            title=dict(
+                text='Revenue (₹)',
+                font=dict(
+                    color='white',
+                    size=13
+                )
+            ),
+            tickfont=dict(
+                color='white',
+                size=11
+            ),
+            color='white',
+            gridcolor='rgba(255,255,255,0.10)'
+        ),
+
+        # ==============================
+        # Y AXIS
+        # ==============================
+        yaxis=dict(
+            title=dict(
+                text='Category',
+                font=dict(
+                    color='white',
+                    size=13
+                )
+            ),
+            tickfont=dict(
+                color='white',
+                size=11
+            ),
+            color='white',
+            gridcolor='rgba(255,255,255,0.10)'
+        ),
+
         template='plotly_dark',
+
         paper_bgcolor='#0e1117',
+
         plot_bgcolor='#0e1117',
-        font=dict(color='white'),
+
+        font=dict(
+            color='white'
+        ),
+
         height=350,
-        margin=dict(l=100, r=50, t=50, b=50)
+
+        margin=dict(
+            l=100,
+            r=80,
+            t=60,
+            b=50
+        )
     )
 
     return fig
 
-
 def create_top_products(df):
     """Top products chart"""
+
     if df.empty:
         return go.Figure()
 
     # Get SKU names from the data
     if 'sku_name' in df.columns:
-        top_products = df.groupby('sku_name')['revenue'].sum().sort_values(ascending=True).reset_index().tail(10)
+
+        top_products = (
+            df.groupby('sku_name')['revenue']
+            .sum()
+            .sort_values(ascending=True)
+            .reset_index()
+            .tail(10)
+        )
+
         label_col = 'sku_name'
+
     else:
-        top_products = df.groupby('sku_id')['revenue'].sum().sort_values(ascending=True).reset_index().tail(10)
+
+        top_products = (
+            df.groupby('sku_id')['revenue']
+            .sum()
+            .sort_values(ascending=True)
+            .reset_index()
+            .tail(10)
+        )
+
         label_col = 'sku_id'
 
     fig = go.Figure()
 
-    fig.add_trace(go.Bar(
-        x=top_products['revenue'],
-        y=top_products[label_col],
-        orientation='h',
-        marker=dict(
-            color=top_products['revenue'],
-            colorscale='Plasma',
-            showscale=True,
-            colorbar=dict(title='Revenue')
-        ),
-        text=top_products['revenue'].apply(lambda x: f'₹{x:,.0f}'),
-        textposition='outside',
-        textfont=dict(color='white', size=10),
-        hovertemplate='<b>%{y}</b><br>Revenue: ₹%{x:,.0f}<extra></extra>'
-    ))
+    fig.add_trace(
+        go.Bar(
+            x=top_products['revenue'],
+            y=top_products[label_col],
+            orientation='h',
+
+            marker=dict(
+                color=top_products['revenue'],
+                colorscale='Plasma',
+                showscale=True,
+
+                colorbar=dict(
+                    title=dict(
+                        text='Revenue',
+                        font=dict(
+                            color='white'
+                        )
+                    ),
+                    tickfont=dict(
+                        color='white'
+                    )
+                )
+            ),
+
+            text=top_products['revenue'].apply(
+                lambda x: f'₹{x:,.0f}'
+            ),
+
+            textposition='outside',
+
+            textfont=dict(
+                color='white',
+                size=10
+            ),
+
+            hovertemplate=(
+                '<b>%{y}</b><br>'
+                'Revenue: ₹%{x:,.0f}'
+                '<extra></extra>'
+            ),
+
+            hoverlabel=dict(
+                bgcolor='white',
+                font=dict(
+                    color='black',
+                    size=13
+                )
+            )
+        )
+    )
 
     fig.update_layout(
-        title='Top 10 Products by Revenue',
-        xaxis_title='Revenue (₹)',
-        yaxis_title='Product',
+
+        # ==============================
+        # CENTERED TITLE
+        # ==============================
+        title=dict(
+            text='Top 10 Products by Revenue',
+            x=0.5,
+            xanchor='center',
+            y=0.95,
+            yanchor='top',
+            font=dict(
+                color='white',
+                size=18
+            )
+        ),
+
+        # ==============================
+        # X AXIS
+        # ==============================
+        xaxis=dict(
+            title=dict(
+                text='Revenue (₹)',
+                font=dict(
+                    color='white',
+                    size=13
+                )
+            ),
+            tickfont=dict(
+                color='white',
+                size=11
+            ),
+            color='white',
+            gridcolor='rgba(255,255,255,0.10)'
+        ),
+
+        # ==============================
+        # Y AXIS
+        # ==============================
+        yaxis=dict(
+            title=dict(
+                text='Product',
+                font=dict(
+                    color='white',
+                    size=13
+                )
+            ),
+            tickfont=dict(
+                color='white',
+                size=11
+            ),
+            color='white',
+            gridcolor='rgba(255,255,255,0.10)'
+        ),
+
         template='plotly_dark',
+
         paper_bgcolor='#0e1117',
+
         plot_bgcolor='#0e1117',
-        font=dict(color='white'),
+
+        font=dict(
+            color='white'
+        ),
+
         height=350,
-        margin=dict(l=120, r=50, t=50, b=50)
+
+        margin=dict(
+            l=120,
+            r=80,
+            t=60,
+            b=50
+        )
     )
 
     return fig
 
-
 def create_daily_sales_distribution(df):
     """Daily sales distribution heatmap"""
+
     if df.empty:
         return go.Figure()
 
-    # Create pivot table
-    df['day_of_week'] = df['date'].dt.dayofweek
-    df['hour'] = df['date'].dt.hour if 'hour' in df.columns else 12
+    # Work on a copy so the original dataframe is not modified
+    df = df.copy()
 
+    # Make sure date is datetime
+    df['date'] = pd.to_datetime(
+        df['date'],
+        errors='coerce'
+    )
+
+    df = df.dropna(
+        subset=['date']
+    )
+
+    if df.empty:
+        return go.Figure()
+
+    # Create day of week
+    df['day_of_week'] = df['date'].dt.dayofweek
+
+    # Create hour
+    if 'hour' in df.columns:
+        df['hour'] = pd.to_numeric(
+            df['hour'],
+            errors='coerce'
+        ).fillna(
+            df['date'].dt.hour
+        )
+    else:
+        df['hour'] = df['date'].dt.hour
+
+    # Make sure units_sold is numeric
+    df['units_sold'] = pd.to_numeric(
+        df['units_sold'],
+        errors='coerce'
+    )
+
+    df = df.dropna(
+        subset=['units_sold']
+    )
+
+    # Create pivot table
     pivot = df.pivot_table(
         values='units_sold',
-        index=df['date'].dt.hour if 'hour' in df.columns else df['date'].dt.day,
+        index='hour',
         columns='day_of_week',
         aggfunc='mean',
         fill_value=0
     )
 
-    fig = go.Figure(data=go.Heatmap(
-        z=pivot.values,
-        x=['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        y=pivot.index,
-        colorscale='Viridis',
-        hovertemplate='Day: %{x}<br>Hour: %{y}<br>Units: %{z:.0f}<extra></extra>'
-    ))
+    # Ensure all days are present
+    pivot = pivot.reindex(
+        columns=range(7),
+        fill_value=0
+    )
 
+    # Create heatmap
+    fig = go.Figure(
+        data=go.Heatmap(
+            z=pivot.values,
+
+            x=[
+                'Mon',
+                'Tue',
+                'Wed',
+                'Thu',
+                'Fri',
+                'Sat',
+                'Sun'
+            ],
+
+            y=pivot.index,
+
+            colorscale='Viridis',
+
+            colorbar=dict(
+                title=dict(
+                    text='Units Sold',
+                    font=dict(
+                        color='#111827'
+                    )
+                ),
+                tickfont=dict(
+                    color='#111827'
+                )
+            ),
+
+            hovertemplate=(
+                '<b>Day:</b> %{x}<br>'
+                '<b>Hour:</b> %{y}:00<br>'
+                '<b>Units:</b> %{z:.0f}'
+                '<extra></extra>'
+            )
+        )
+    )
+
+    # Layout
     fig.update_layout(
-        title='Sales Distribution Heatmap',
-        xaxis_title='Day of Week',
-        yaxis_title='Hour of Day',
-        template='plotly_dark',
-        paper_bgcolor='#0e1117',
-        plot_bgcolor='#0e1117',
-        font=dict(color='white'),
-        height=350
+
+        # ==============================
+        # CENTERED TITLE
+        # ==============================
+        title=dict(
+            text='Sales Distribution Heatmap',
+            x=0.5,
+            xanchor='center',
+            y=0.95,
+            yanchor='top',
+            font=dict(
+                size=20,
+                color='#111827'
+            )
+        ),
+
+        # ==============================
+        # X AXIS
+        # ==============================
+        xaxis=dict(
+            title=dict(
+                text='Day of Week',
+                font=dict(
+                    color='#111827'
+                )
+            ),
+
+            tickfont=dict(
+                color='#111827'
+            ),
+
+            showgrid=False,
+            zeroline=False
+        ),
+
+        # ==============================
+        # Y AXIS
+        # ==============================
+        yaxis=dict(
+            title=dict(
+                text='Hour of Day',
+                font=dict(
+                    color='#111827'
+                )
+            ),
+
+            tickfont=dict(
+                color='#111827'
+            ),
+
+            showgrid=False,
+            zeroline=False
+        ),
+
+        # ==============================
+        # WHITE BACKGROUND
+        # ==============================
+        template='plotly_white',
+
+        paper_bgcolor='white',
+
+        plot_bgcolor='white',
+
+        font=dict(
+            color='#111827'
+        ),
+
+        # ==============================
+        # SIZE
+        # ==============================
+        height=350,
+
+        # ==============================
+        # SPACING
+        # ==============================
+        margin=dict(
+            l=70,
+            r=70,
+            t=70,
+            b=60
+        ),
+
+        hoverlabel=dict(
+            bgcolor='white',
+            font=dict(
+                color='#111827'
+            )
+        )
     )
 
     return fig
 
 
 def create_monthly_trend(df):
-    """Monthly trend chart"""
+    """Monthly revenue trend chart"""
+
     if df.empty:
         return go.Figure()
 
-    monthly = df.groupby(df['date'].dt.to_period('M'))['revenue'].sum().reset_index()
-    monthly['date'] = monthly['date'].astype(str)
+    # Work on a copy
+    df = df.copy()
+
+    # Make sure date is datetime
+    df['date'] = pd.to_datetime(
+        df['date'],
+        errors='coerce'
+    )
+
+    # Make sure revenue is numeric
+    df['revenue'] = pd.to_numeric(
+        df['revenue'],
+        errors='coerce'
+    )
+
+    # Remove invalid rows
+    df = df.dropna(
+        subset=['date', 'revenue']
+    )
+
+    if df.empty:
+        return go.Figure()
+
+    # ==============================
+    # MONTHLY AGGREGATION
+    # ==============================
+
+    monthly = (
+        df.groupby(
+            df['date'].dt.to_period('M')
+        )['revenue']
+        .sum()
+        .reset_index()
+    )
+
+    # Convert Period to datetime
+    monthly['date'] = monthly['date'].dt.to_timestamp()
+
+    # Display label
+    monthly['month_label'] = monthly['date'].dt.strftime(
+        '%b %Y'
+    )
+
+    # ==============================
+    # CREATE FIGURE
+    # ==============================
 
     fig = go.Figure()
 
-    fig.add_trace(go.Bar(
-        x=monthly['date'],
-        y=monthly['revenue'],
-        marker=dict(
-            color=monthly['revenue'],
-            colorscale='Blues',
-            showscale=True,
-            colorbar=dict(title='Revenue')
-        ),
-        text=monthly['revenue'].apply(lambda x: f'₹{x:,.0f}'),
-        textposition='outside',
-        textfont=dict(color='white', size=9),
-        hovertemplate='<b>%{x}</b><br>Revenue: ₹%{y:,.0f}<extra></extra>'
-    ))
+    fig.add_trace(
+        go.Bar(
+            x=monthly['month_label'],
+
+            y=monthly['revenue'],
+
+            marker=dict(
+                color=monthly['revenue'],
+                colorscale='Blues',
+                showscale=True,
+
+                colorbar=dict(
+                    title=dict(
+                        text='Revenue',
+                        font=dict(
+                            color='#111827'
+                        )
+                    ),
+
+                    tickfont=dict(
+                        color='#111827'
+                    )
+                )
+            ),
+
+            text=monthly['revenue'].apply(
+                lambda x: f'₹{x:,.0f}'
+            ),
+
+            textposition='outside',
+
+            textfont=dict(
+                color='#111827',
+                size=10
+            ),
+
+            hovertemplate=(
+                '<b>%{x}</b><br>'
+                'Revenue: ₹%{y:,.0f}'
+                '<extra></extra>'
+            )
+        )
+    )
+
+    # ==============================
+    # LAYOUT
+    # ==============================
 
     fig.update_layout(
-        title='Monthly Revenue Trend',
-        xaxis_title='Month',
-        yaxis_title='Revenue (₹)',
-        template='plotly_dark',
-        paper_bgcolor='#0e1117',
-        plot_bgcolor='#0e1117',
-        font=dict(color='white'),
-        height=350
+
+        # ------------------------------
+        # CENTERED TITLE
+        # ------------------------------
+        title=dict(
+            text='Monthly Revenue Trend',
+            x=0.5,
+            xanchor='center',
+            y=0.95,
+            yanchor='top',
+
+            font=dict(
+                size=20,
+                color='#111827'
+            )
+        ),
+
+        # ------------------------------
+        # X AXIS
+        # ------------------------------
+        xaxis=dict(
+            title=dict(
+                text='Month',
+                font=dict(
+                    color='#111827'
+                )
+            ),
+
+            tickfont=dict(
+                color='#111827'
+            ),
+
+            showgrid=False,
+            zeroline=False
+        ),
+
+        # ------------------------------
+        # Y AXIS
+        # ------------------------------
+        yaxis=dict(
+            title=dict(
+                text='Revenue (₹)',
+                font=dict(
+                    color='#111827'
+                )
+            ),
+
+            tickfont=dict(
+                color='#111827'
+            ),
+
+            showgrid=True,
+            gridcolor='#e5e7eb',
+            zeroline=False
+        ),
+
+        # ------------------------------
+        # WHITE THEME
+        # ------------------------------
+        template='plotly_white',
+
+        paper_bgcolor='white',
+
+        plot_bgcolor='white',
+
+        font=dict(
+            color='#111827'
+        ),
+
+        # ------------------------------
+        # SIZE
+        # ------------------------------
+        height=350,
+
+        # ------------------------------
+        # MARGINS
+        # ------------------------------
+        margin=dict(
+            l=70,
+            r=70,
+            t=70,
+            b=60
+        ),
+
+        # ------------------------------
+        # HOVER
+        # ------------------------------
+        hoverlabel=dict(
+            bgcolor='white',
+
+            font=dict(
+                color='#111827'
+            )
+        )
     )
 
     return fig
-
-
 def create_channel_distribution(df):
     """Channel distribution chart"""
+
     if df.empty or 'channel' not in df.columns:
         return go.Figure()
 
-    channel_data = df.groupby('channel')['revenue'].sum().reset_index()
+    # Work on a copy
+    df = df.copy()
 
-    colors = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981']
+    # Make sure revenue is numeric
+    df['revenue'] = pd.to_numeric(
+        df['revenue'],
+        errors='coerce'
+    )
 
-    fig = go.Figure(data=[go.Pie(
-        labels=channel_data['channel'],
-        values=channel_data['revenue'],
-        hole=0.4,
-        marker=dict(colors=colors[:len(channel_data)]),
-        textinfo='label+percent',
-        textposition='auto',
-        textfont=dict(color='white', size=12),
-        hovertemplate='<b>%{label}</b><br>Revenue: ₹%{value:,.0f}<br>Share: %{percent}<extra></extra>'
-    )])
+    df = df.dropna(
+        subset=['channel', 'revenue']
+    )
+
+    if df.empty:
+        return go.Figure()
+
+    # ==============================
+    # CHANNEL AGGREGATION
+    # ==============================
+
+    channel_data = (
+        df.groupby(
+            'channel',
+            as_index=False
+        )['revenue']
+        .sum()
+        .sort_values(
+            'revenue',
+            ascending=False
+        )
+    )
+
+    # ==============================
+    # COLORS
+    # ==============================
+
+    colors = [
+        '#6366F1',
+        '#8B5CF6',
+        '#EC4899',
+        '#F59E0B',
+        '#10B981'
+    ]
+
+    # Repeat colors if there are more channels
+    chart_colors = [
+        colors[i % len(colors)]
+        for i in range(len(channel_data))
+    ]
+
+    # ==============================
+    # CREATE DONUT CHART
+    # ==============================
+
+    fig = go.Figure(
+        data=[
+            go.Pie(
+                labels=channel_data['channel'],
+
+                values=channel_data['revenue'],
+
+                hole=0.4,
+
+                marker=dict(
+                    colors=chart_colors
+                ),
+
+                textinfo='label+percent',
+
+                textposition='auto',
+
+                textfont=dict(
+                    color='#111827',
+                    size=12
+                ),
+
+                hovertemplate=(
+                    '<b>%{label}</b><br>'
+                    'Revenue: ₹%{value:,.0f}<br>'
+                    'Share: %{percent}'
+                    '<extra></extra>'
+                )
+            )
+        ]
+    )
+
+    # ==============================
+    # LAYOUT
+    # ==============================
 
     fig.update_layout(
-        title='Revenue by Channel',
-        template='plotly_dark',
-        paper_bgcolor='#0e1117',
-        plot_bgcolor='#0e1117',
-        font=dict(color='white'),
+
+        # ------------------------------
+        # CENTERED TITLE
+        # ------------------------------
+        title=dict(
+            text='Revenue by Channel',
+
+            x=0.5,
+
+            xanchor='center',
+
+            y=0.95,
+
+            yanchor='top',
+
+            font=dict(
+                size=20,
+                color='#111827'
+            )
+        ),
+
+        # ------------------------------
+        # WHITE THEME
+        # ------------------------------
+        template='plotly_white',
+
+        paper_bgcolor='white',
+
+        plot_bgcolor='white',
+
+        font=dict(
+            color='#111827'
+        ),
+
+        # ------------------------------
+        # SIZE
+        # ------------------------------
         height=350,
+
+        # ------------------------------
+        # LEGEND
+        # ------------------------------
         legend=dict(
             orientation='h',
+
             yanchor='bottom',
+
             y=-0.1,
+
             xanchor='center',
-            x=0.5
+
+            x=0.5,
+
+            font=dict(
+                color='#111827'
+            )
+        ),
+
+        # ------------------------------
+        # MARGINS
+        # ------------------------------
+        margin=dict(
+            l=30,
+            r=30,
+            t=70,
+            b=70
+        ),
+
+        # ------------------------------
+        # HOVER
+        # ------------------------------
+        hoverlabel=dict(
+            bgcolor='white',
+
+            font=dict(
+                color='#111827'
+            )
         )
     )
 
