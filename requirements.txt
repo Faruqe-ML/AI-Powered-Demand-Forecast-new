@@ -1,3 +1,5 @@
 streamlit
 plotly
 Pygments==2.21.0
+prophet
+scikit-learn
