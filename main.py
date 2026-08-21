@@ -107,3 +107,7 @@ elif page_key == "customers":
 elif page_key == "recommendations":
     from app_pages.recommendation_dashboard import show_recommendations
     show_recommendations()
+
+elif page_key == "ml_performance":
+    from app_pages.ml_performance_dashboard import show_ml_performance
+    show_ml_performance()
