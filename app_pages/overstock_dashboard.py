@@ -16,7 +16,7 @@ import api
 def load_data():
     sku = pd.DataFrame(api.get_skus())
     daily_sales = api.get_daily_sales()
-    inventory = pd.DataFrame(api.get_inventary())
+    inventory = pd.DataFrame(api.get_inventory())
 
     return sku, daily_sales, inventory
 
